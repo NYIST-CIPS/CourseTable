@@ -1,5 +1,6 @@
 function getDay(arr) {
     let buff = arr.parent.parent.parent.parent.parent.parent.children[0].children[0].children[0].data
+    //呕
     switch (buff) {
         case "周一":
             return 1
@@ -41,6 +42,7 @@ function scheduleHtmlParser(html) {
 
         //获取教室
         if (!courseItems[u].children[1].children[0]) {
+            //特殊处理某些网络课程可能会导致的BUG
             courseInfoMap.position = "网络课"
         }
         else {
@@ -54,6 +56,7 @@ function scheduleHtmlParser(html) {
 
         //分割周数、节数、时间
         if (!courseItems[u].children[2]) {
+            //特殊处理某些网络课程可能会导致的BUG
             buff = "19周 5-6节 14:30~16:00".split(" ")
         }
         else {
@@ -166,11 +169,11 @@ function scheduleHtmlParser(html) {
             "endTime": "18:00"
         }, {
             "section": 9,
-            "startTime": "18:30",
-            "endTime": "19:15"
+            "startTime": "19:20",
+            "endTime": "20:05"
         }, {
             "section": 10,
-            "startTime": "19:15",
+            "startTime": "20:05",
             "endTime": "20:50"
         }]
     let data = { "courseInfos": result, "sectionTimes": _sectionTimes }
