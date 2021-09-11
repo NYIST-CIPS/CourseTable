@@ -1,3 +1,4 @@
+//获取周数
 function getDay(arr) {
     let buff = arr.parent.parent.parent.parent.parent.parent.children[0].children[0].children[0].data
     //呕
@@ -25,13 +26,16 @@ function getDay(arr) {
             break
     }
 }
+//获取周数结束
+
+//获取教师姓名
+//giveup~
+//获取教师姓名结束
+
 function scheduleHtmlParser(html) {
     //jquery使用方法参考：https://juejin.im/post/5ea131f76fb9a03c8122d6b9
     let result = []
-    //let weekCourseItems = $('.common-week')
     let courseItems = $('.target-item')
-    //let buff
-    //console.log(courseItems.length)
     for (let u = 0; u < courseItems.length; u++) {
 
         let courseInfoMap = { "name": "", "teacher": "暂不支持获取老师", "position": "", "day": "", "weeks": [], "sections": [] }
@@ -51,6 +55,7 @@ function scheduleHtmlParser(html) {
         //获取教室结束
 
         //获取老师
+        //giveup
         /*需要模拟点击再传入html,后续将支持*/
         //获取老师结束
 
@@ -65,7 +70,8 @@ function scheduleHtmlParser(html) {
         //分割结束
 
         //处理周数
-        //console.log(buff[0].search('单|双'))
+        let buffFix = courseItems[u].children[2].children[0].data.split("周")//判断多段周数
+        buffFix = buffFix[0].split(" ")
         //console.log(buff)
         if (buff[0].search('单') != -1) {
             buff[0] = buff[0].replace('单周', '')
@@ -97,6 +103,20 @@ function scheduleHtmlParser(html) {
                 }
             }
         }
+        else if (buffFix.length!=1) {
+            for(let weekCut = 0;weekCut<buffFix.length;weekCut++){
+                buffFix[weekCut] = buffFix[weekCut].replace('[', '')
+                buffFix[weekCut] = buffFix[weekCut].replace(']', '')
+                let weekRange = buffFix[weekCut]
+                let start = buffFix[weekCut].split('-')[0]
+                let end = buffFix[weekCut].split('-')[buffFix[weekCut].split('-').length - 1]
+                //console.log(weekRange)
+                //console.log(buff[0])
+                for (let j = Number(start); j <= Number(end); j++) {
+                    courseInfoMap.weeks.push(j)
+                }
+            }
+        }
         else {
             buff[0] = buff[0].replace('周', '')
             buff[0] = buff[0].replace('[', '')
@@ -104,7 +124,7 @@ function scheduleHtmlParser(html) {
             let weekRange = buff[0]
             let start = buff[0].split('-')[0]
             let end = buff[0].split('-')[buff[0].split('-').length - 1]
-            console.log(weekRange)
+            //console.log(weekRange)
             //console.log(buff[0])
             for (let j = Number(start); j <= Number(end); j++) {
                 courseInfoMap.weeks.push(j)
@@ -113,10 +133,11 @@ function scheduleHtmlParser(html) {
         //处理结束
 
         //处理节数
-        buff[1] = buff[1].replace('节', '')
-        let sectionRange = buff[1]
-        let start = buff[1].split('-')[0]
-        let end = buff[1].split('-')[1]
+        let sectionPosition = buff.length-2
+        buff[sectionPosition] = buff[sectionPosition].replace('节', '')
+        let sectionRange = buff[sectionPosition]
+        let start = buff[sectionPosition].split('-')[0]
+        let end = buff[sectionPosition].split('-')[1]
         //console.log(sectionRange)
         //console.log(buff[1])
         for (let j = Number(start); j <= Number(end); j++) {
@@ -153,28 +174,28 @@ function scheduleHtmlParser(html) {
             "endTime": "11:40"
         }, {
             "section": 5,
-            "startTime": "14:30",
-            "endTime": "15:15"
+            "startTime": "15:00",
+            "endTime": "15:45"
         }, {
             "section": 6,
-            "startTime": "15:15",
-            "endTime": "16:00"
+            "startTime": "15:45",
+            "endTime": "16:30"
         }, {
             "section": 7,
-            "startTime": "16:30",
-            "endTime": "17:15"
+            "startTime": "17:00",
+            "endTime": "17:45"
         }, {
             "section": 8,
-            "startTime": "17:15",
-            "endTime": "18:00"
+            "startTime": "17:45",
+            "endTime": "18:30"
         }, {
             "section": 9,
-            "startTime": "19:20",
-            "endTime": "20:05"
+            "startTime": "19:30",
+            "endTime": "20:15"
         }, {
             "section": 10,
-            "startTime": "20:05",
-            "endTime": "20:50"
+            "startTime": "20:15",
+            "endTime": "21:00"
         }]
     let data = { "courseInfos": result, "sectionTimes": _sectionTimes }
     console.log(data)
