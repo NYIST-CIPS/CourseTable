@@ -1,7 +1,5 @@
 //获取周数
-function getDay(arr) {
-    let buff = arr.parent.parent.parent.parent.parent.parent.children[0].children[0].children[0].data
-    //呕
+function getDay(buff) {
     switch (buff) {
         case "周一":
             return 1
@@ -26,178 +24,175 @@ function getDay(arr) {
             break
     }
 }
-//获取周数结束
-
-//获取教师姓名
-//giveup~
-//获取教师姓名结束
-
+//获取周数
+//处理周数
+function getWeeks(origin) {
+    sig = 0
+    weeks = []
+    if (origin.search('单') != -1) {
+        sig = 1
+    } else if (origin.search('双') != -1) {
+        sig = 2
+    }
+    //判断单双普通周
+    origin = origin.replace('单周', '')
+    origin = origin.replace('双周', '')
+    origin = origin.replace('周', '')
+    origin = origin.replace('第', '')
+    origin = origin.replace('[', '')
+    origin = origin.replace(']', '')
+    let start = origin.split('-')[0]
+    let end = origin.split('-')[1]
+    switch (sig) {
+        case 0:
+            for (let j = Number(start); j <= Number(end); j++) {
+                weeks.push(j)
+            }
+            break
+        case 1:
+            for (let j = Number(start); j <= Number(end); j++) {
+                if (j % 2) {
+                    weeks.push(j)
+                }
+            }
+            break
+        case 2:
+            for (let j = Number(start); j <= Number(end); j++) {
+                if (j % 2 == 0) {
+                    weeks.push(j)
+                }
+            }
+            break
+    }
+    return weeks
+}
+//处理节数
+function getSections(originSection) {
+    section = []
+    originSection = originSection.replace('节', '')
+    let start = originSection.split('-')[0]
+    let end = originSection.split('-')[1]
+    for (let j = Number(start); j <= Number(end); j++) {
+        section.push({
+            "section": j
+        })
+    }
+    return section
+}
+//数组去重
+function distinct(arr) {
+    let result = []
+    let obj = {}
+    for (let i of arr) {
+        if (!obj[i]) {
+            result.push(i)
+            obj[i] = 1
+        }
+    }
+    return result
+}
 function scheduleHtmlParser(html) {
     //jquery使用方法参考：https://juejin.im/post/5ea131f76fb9a03c8122d6b9
     let result = []
-    let courseItems = $('.target-item')
+    let courseItems = $('.course-content')
+    //选择所有课程信息
     for (let u = 0; u < courseItems.length; u++) {
-
-        let courseInfoMap = { "name": "", "teacher": "暂不支持获取老师", "position": "", "day": "", "weeks": [], "sections": [] }
-
-        //获取课程名称
-        courseInfoMap.name = courseItems[u].children[0].children[2].data.replace(/ /g, "")
-        //获取课程名称结束
-
-        //获取教室
-        if (!courseItems[u].children[1].children[0]) {
-            //特殊处理某些网络课程可能会导致的BUG
-            courseInfoMap.position = "网络课"
-        }
-        else {
-            courseInfoMap.position = courseItems[u].children[1].children[0].data
-        }
-        //获取教室结束
-
-        //获取老师
-        //giveup
-        /*需要模拟点击再传入html,后续将支持*/
-        //获取老师结束
-
-        //分割周数、节数、时间
-        if (!courseItems[u].children[2]) {
-            //特殊处理某些网络课程可能会导致的BUG
-            buff = "19周 5-6节 14:30~16:00".split(" ")
-        }
-        else {
-            buff = courseItems[u].children[2].children[0].data.split(" ")
-        }
-        //分割结束
-
-        //处理周数
-        let buffFix = courseItems[u].children[2].children[0].data.split("周")//判断多段周数
-        buffFix = buffFix[0].split(" ")
-        //console.log(buff)
-        if (buff[0].search('单') != -1) {
-            buff[0] = buff[0].replace('单周', '')
-            buff[0] = buff[0].replace('[', '')
-            buff[0] = buff[0].replace(']', '')
-            let weekRange = buff[0]
-            let start = buff[0].split('-')[0]
-            let end = buff[0].split('-')[1]
-            //console.log(weekRange)
-            //console.log(buff[0])
-            for (let j = Number(start); j <= Number(end); j++) {
-                if (j % 2) {
-                    courseInfoMap.weeks.push(j)
-                }
+        for (let ct = 1; ct <= courseItems[u].children.length - 1; ct++) {
+            let courseInfoMap = {
+                "name": "",
+                "teacher": "暂不支持获取老师",
+                "position": "",
+                "day": "",
+                "weeks": [],
+                "sections": []
             }
-        }
-        else if (buff[0].search('双') != -1) {
-            buff[0] = buff[0].replace('双周', '')
-            buff[0] = buff[0].replace('[', '')
-            buff[0] = buff[0].replace(']', '')
-            let weekRange = buff[0]
-            let start = buff[0].split('-')[0]
-            let end = buff[0].split('-')[1]
-            //console.log(weekRange)
-            //console.log(buff[0])
-            for (let j = Number(start); j <= Number(end); j++) {
-                if (j % 2 == 0) {
-                    courseInfoMap.weeks.push(j)
-                }
-            }
-        }
-        else if (buffFix.length!=1) {
-            for(let weekCut = 0;weekCut<buffFix.length;weekCut++){
-                buffFix[weekCut] = buffFix[weekCut].replace('[', '')
-                buffFix[weekCut] = buffFix[weekCut].replace(']', '')
-                let weekRange = buffFix[weekCut]
-                let start = buffFix[weekCut].split('-')[0]
-                let end = buffFix[weekCut].split('-')[buffFix[weekCut].split('-').length - 1]
-                //console.log(weekRange)
-                //console.log(buff[0])
-                for (let j = Number(start); j <= Number(end); j++) {
-                    courseInfoMap.weeks.push(j)
-                }
-            }
-        }
-        else {
-            buff[0] = buff[0].replace('周', '')
-            buff[0] = buff[0].replace('[', '')
-            buff[0] = buff[0].replace(']', '')
-            let weekRange = buff[0]
-            let start = buff[0].split('-')[0]
-            let end = buff[0].split('-')[buff[0].split('-').length - 1]
-            //console.log(weekRange)
-            //console.log(buff[0])
-            for (let j = Number(start); j <= Number(end); j++) {
-                courseInfoMap.weeks.push(j)
-            }
-        }
-        //处理结束
 
-        //处理节数
-        let sectionPosition = buff.length-2
-        buff[sectionPosition] = buff[sectionPosition].replace('节', '')
-        let sectionRange = buff[sectionPosition]
-        let start = buff[sectionPosition].split('-')[0]
-        let end = buff[sectionPosition].split('-')[1]
-        //console.log(sectionRange)
-        //console.log(buff[1])
-        for (let j = Number(start); j <= Number(end); j++) {
-            courseInfoMap.sections.push({ "section": j })
+            //获取课程名
+            courseInfoMap.name = courseItems[u].children[0].children[0].children[0].children[0].children[0].data
+            //获取课程名
+
+            //获取老师姓名
+            courseInfoMap.teacher = courseItems[u].children[ct].children[2].children[1].children[0].data
+            //获取老师姓名
+
+            //获取上课地点
+            if (!courseItems[u].children[ct].children[1].children[1].children[0]) {
+                //特殊处理某些网络课程可能会导致的BUG
+                courseInfoMap.position = "网络课/实验课"
+            } else {
+                courseInfoMap.position = courseItems[u].children[ct].children[1].children[1].children[0].data
+            }
+            //获取上课地点
+
+            //获取上课时间
+            if (!courseItems[u].children[ct].children[0].children[1].children[0]) {
+                //特殊处理某些网络课程不含有时间信息从而导致的BUG
+                timeBuff = "第[19]周 周日 5-6节 14:30~16:00".split(" ")
+            } else {
+                timeBuff = courseItems[u].children[ct].children[0].children[1].children[0].data.split(" ")
+            }
+            //获取上课时间
+
+            //处理上课时间
+            courseInfoMap.day = getDay(timeBuff[timeBuff.length - 3])
+            //周几
+            for (let i = 0; i < timeBuff.length - 3; i++) {
+                courseInfoMap.weeks = courseInfoMap.weeks.concat(courseInfoMap.weeks, getWeeks(timeBuff[i]))
+            }
+            courseInfoMap.weeks = distinct(courseInfoMap.weeks)//去重
+            //第几周
+            courseInfoMap.sections = getSections(timeBuff[timeBuff.length - 2])
+            //第几节
+            result.push(courseInfoMap)
         }
-
-        //获取天
-        courseInfoMap.day = getDay(courseItems[u])
-        //获取天结束
-
-        //处理上课时间
-        //courseInfoMap.sections
-        result.push(courseInfoMap)
     }
-    //console.log(result)
 
     //打时间表
-    let _sectionTimes = [
-        {
-            "section": 1,
-            "startTime": "08:00",
-            "endTime": "08:45"
-        }, {
-            "section": 2,
-            "startTime": "08:45",
-            "endTime": "9:30"
-        }, {
-            "section": 3,
-            "startTime": "10:10",
-            "endTime": "10:55"
-        }, {
-            "section": 4,
-            "startTime": "10:55",
-            "endTime": "11:40"
-        }, {
-            "section": 5,
-            "startTime": "15:00",
-            "endTime": "15:45"
-        }, {
-            "section": 6,
-            "startTime": "15:45",
-            "endTime": "16:30"
-        }, {
-            "section": 7,
-            "startTime": "17:00",
-            "endTime": "17:45"
-        }, {
-            "section": 8,
-            "startTime": "17:45",
-            "endTime": "18:30"
-        }, {
-            "section": 9,
-            "startTime": "19:30",
-            "endTime": "20:15"
-        }, {
-            "section": 10,
-            "startTime": "20:15",
-            "endTime": "21:00"
-        }]
-    let data = { "courseInfos": result, "sectionTimes": _sectionTimes }
+    let _sectionTimes = [{
+        "section": 1,
+        "startTime": "08:00",
+        "endTime": "08:45"
+    }, {
+        "section": 2,
+        "startTime": "08:45",
+        "endTime": "9:30"
+    }, {
+        "section": 3,
+        "startTime": "10:10",
+        "endTime": "10:55"
+    }, {
+        "section": 4,
+        "startTime": "10:55",
+        "endTime": "11:40"
+    }, {
+        "section": 5,
+        "startTime": "15:00",
+        "endTime": "15:45"
+    }, {
+        "section": 6,
+        "startTime": "15:45",
+        "endTime": "16:30"
+    }, {
+        "section": 7,
+        "startTime": "17:00",
+        "endTime": "17:45"
+    }, {
+        "section": 8,
+        "startTime": "17:45",
+        "endTime": "18:30"
+    }, {
+        "section": 9,
+        "startTime": "19:30",
+        "endTime": "20:15"
+    }, {
+        "section": 10,
+        "startTime": "20:15",
+        "endTime": "21:00"
+    }]
+    let data = {
+        "courseInfos": result,
+        "sectionTimes": _sectionTimes
+    }
     console.log(data)
     return data
 }
