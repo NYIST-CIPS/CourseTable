@@ -6,9 +6,10 @@
 小爱课程表（AISchedule） 
 [更新日志](AISchedule/log.md)
 
-## 计划支持
+WakeUp课程表（WakeupSchedule）
+[更新日志](Wakeup/Wakeup.md)
 
-WakeUp课程表
+## 计划支持
 
 怪兽课表
 
