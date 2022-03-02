@@ -42,7 +42,7 @@ function getWeeks(origin) {
     origin = origin.replace('[', '')
     origin = origin.replace(']', '')
     let start = origin.split('-')[0]
-    let end = origin.split('-')[1]
+    let end = origin.split('-')[origin.split('-').length - 1]
     switch (sig) {
         case 0:
             for (let j = Number(start); j <= Number(end); j++) {
@@ -89,6 +89,26 @@ function distinct(arr) {
             obj[i] = 1
         }
     }
+    return result
+}
+//列表去重
+function rebuild(arr) {
+    let result = [{ "name": "ghost", "teacher": "ghost ", "position": "ghost", "day": 1, "weeks": [1], "sections": [1] }]
+    for (let i of arr) {
+        var flag = 0
+        for (let c of result) {
+            var buff1 = JSON.stringify(i)
+            var buff2 = JSON.stringify(c)
+            if (buff1 == buff2) {
+                flag = 1
+                break
+            }
+        }
+        if (flag == 0) {
+            result.push(i)
+        }
+    }
+    result.splice(0,1)
     return result
 }
 function scheduleHtmlParser(html) {
@@ -146,53 +166,7 @@ function scheduleHtmlParser(html) {
             result.push(courseInfoMap)
         }
     }
-
-    //打时间表
-    let _sectionTimes = [{
-        "section": 1,
-        "startTime": "08:00",
-        "endTime": "08:45"
-    }, {
-        "section": 2,
-        "startTime": "08:45",
-        "endTime": "9:30"
-    }, {
-        "section": 3,
-        "startTime": "10:10",
-        "endTime": "10:55"
-    }, {
-        "section": 4,
-        "startTime": "10:55",
-        "endTime": "11:40"
-    }, {
-        "section": 5,
-        "startTime": "15:00",
-        "endTime": "15:45"
-    }, {
-        "section": 6,
-        "startTime": "15:45",
-        "endTime": "16:30"
-    }, {
-        "section": 7,
-        "startTime": "17:00",
-        "endTime": "17:45"
-    }, {
-        "section": 8,
-        "startTime": "17:45",
-        "endTime": "18:30"
-    }, {
-        "section": 9,
-        "startTime": "19:30",
-        "endTime": "20:15"
-    }, {
-        "section": 10,
-        "startTime": "20:15",
-        "endTime": "21:00"
-    }]
-    let data = {
-        "courseInfos": result,
-        "sectionTimes": _sectionTimes
-    }
-    console.log(data)
-    return data
+    result = rebuild(result)
+    //新策略直接返回result
+    return result
 }
